@@ -20,7 +20,8 @@ class TextProcessor:
         # Remove excessive whitespace
         text = re.sub(r'\s+', ' ', text)
         # Remove special characters but keep punctuation
-        text = re.sub(r'[^\w\s\u4e00-\u9fff.,!?;:，。！？；：、""''（）\[\]\(\)]', '', text)
+        # Keep word chars, spaces, Chinese chars, and common punctuation
+        text = re.sub(r'[^\w\s\u4e00-\u9fff.,!?;:，。！？；：、""''（）\[\]()]', '', text)
         return text.strip()
     
     @staticmethod
