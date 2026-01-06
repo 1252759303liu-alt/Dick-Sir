@@ -97,6 +97,20 @@ brew install tesseract tesseract-lang
 下载并安装：https://github.com/UB-Mannheim/tesseract/wiki
 
 5. **启动应用**
+
+**方法一：使用快速启动脚本（推荐）**
+
+Linux/macOS:
+```bash
+./start.sh
+```
+
+Windows:
+```cmd
+start.bat
+```
+
+**方法二：手动启动**
 ```bash
 cd backend
 python app.py
