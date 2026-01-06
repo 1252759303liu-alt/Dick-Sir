@@ -2,10 +2,11 @@
 Textbook Reading Assistant - Main FastAPI Application
 教科书阅读助手
 """
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from typing import List, Optional
 import os
 import shutil
@@ -19,12 +20,34 @@ from backend.services.ocr_service import OCRService
 from backend.services.ai_service import AIService
 from backend.services.chapter_service import ChapterService
 
+
+# Security middleware for CSP headers
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        # Add Content Security Policy to mitigate XSS
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self' https://cdn.jsdelivr.net; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "img-src 'self' data: https:; "
+            "font-src 'self' https://cdn.jsdelivr.net; "
+        )
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        return response
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Textbook Reading Assistant",
     description="智能教科书阅读助手 - 使用DeepSeek V3提供AI分析和总结",
     version="1.0.0"
 )
+
+# Add security headers middleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Add CORS middleware
 app.add_middleware(
@@ -97,9 +120,12 @@ async def upload_file(file: UploadFile = File(...)):
             detail=f"File type not allowed. Allowed types: {', '.join(Config.ALLOWED_EXTENSIONS)}"
         )
     
-    # Check file size
-    file_content = await file.read()
-    if len(file_content) > Config.MAX_FILE_SIZE:
+    # Check file size efficiently without loading entire content into memory
+    file.file.seek(0, 2)  # Seek to end
+    file_size = file.file.tell()
+    file.file.seek(0)  # Reset to beginning
+    
+    if file_size > Config.MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
             detail=f"File too large. Maximum size: {Config.MAX_FILE_SIZE_MB}MB"
@@ -109,8 +135,11 @@ async def upload_file(file: UploadFile = File(...)):
     filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}"
     file_path = os.path.join(Config.UPLOAD_FOLDER, filename)
     
+    # Read content in chunks for memory efficiency
     with open(file_path, "wb") as f:
-        f.write(file_content)
+        chunk_size = 1024 * 1024  # 1MB chunks
+        while chunk := await file.read(chunk_size):
+            f.write(chunk)
     
     # Extract text based on file type
     file_ext = filename.rsplit('.', 1)[1].lower()
@@ -288,15 +317,30 @@ async def get_summary(filename: str):
     Returns:
         File download response
     """
-    file_path = os.path.join(Config.OUTPUT_FOLDER, filename)
+    # Validate filename - prevent path traversal attacks
+    # Only allow alphanumeric, dots, hyphens, underscores
+    import os.path
+    if not filename.endswith('.md'):
+        raise HTTPException(status_code=400, detail="Invalid file type")
+    
+    # Prevent path traversal
+    safe_filename = os.path.basename(filename)
+    if safe_filename != filename or '..' in filename or '/' in filename or '\\' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    file_path = os.path.join(Config.OUTPUT_FOLDER, safe_filename)
     
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Summary not found")
     
+    # Verify the file is actually in the output folder (additional safety check)
+    if not os.path.abspath(file_path).startswith(os.path.abspath(Config.OUTPUT_FOLDER)):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     return FileResponse(
         file_path,
         media_type="text/markdown",
-        filename=filename
+        filename=safe_filename
     )
 
 

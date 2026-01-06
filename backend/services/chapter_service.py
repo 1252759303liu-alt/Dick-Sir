@@ -7,25 +7,25 @@ from backend.utils.text_processor import TextProcessor
 class ChapterService:
     """Service for recognizing and structuring textbook chapters"""
     
-    # Common chapter heading patterns
+    # Common chapter heading patterns - Pre-compiled for performance
     CHAPTER_PATTERNS = [
         # Chinese patterns
-        r'^第[一二三四五六七八九十百千万\d]+章\s*[：:]\s*(.+)',  # 第一章：标题
-        r'^第[一二三四五六七八九十百千万\d]+章\s+(.+)',  # 第一章 标题
-        r'^第[一二三四五六七八九十百千万\d]+节\s*[：:]\s*(.+)',  # 第一节：标题
+        re.compile(r'^第[一二三四五六七八九十百千万\d]+章\s*[：:]\s*(.+)'),  # 第一章：标题
+        re.compile(r'^第[一二三四五六七八九十百千万\d]+章\s+(.+)'),  # 第一章 标题
+        re.compile(r'^第[一二三四五六七八九十百千万\d]+节\s*[：:]\s*(.+)'),  # 第一节：标题
         # English patterns
-        r'^Chapter\s+(\d+)\s*[：:]\s*(.+)',  # Chapter 1: Title
-        r'^Chapter\s+(\d+)\s+(.+)',  # Chapter 1 Title
+        re.compile(r'^Chapter\s+(\d+)\s*[：:]\s*(.+)', re.IGNORECASE),  # Chapter 1: Title
+        re.compile(r'^Chapter\s+(\d+)\s+(.+)', re.IGNORECASE),  # Chapter 1 Title
         # Numeric patterns
-        r'^(\d+)\.\s+(.+)',  # 1. Title
-        r'^(\d+\.\d+)\s+(.+)',  # 1.1 Title
-        r'^(\d+\.\d+\.\d+)\s+(.+)',  # 1.1.1 Title
+        re.compile(r'^(\d+)\.\s+(.+)'),  # 1. Title
+        re.compile(r'^(\d+\.\d+)\s+(.+)'),  # 1.1 Title
+        re.compile(r'^(\d+\.\d+\.\d+)\s+(.+)'),  # 1.1.1 Title
     ]
     
     SECTION_PATTERNS = [
-        r'^第[一二三四五六七八九十百千万\d]+节\s*[：:]\s*(.+)',
-        r'^Section\s+(\d+)\s*[：:]\s*(.+)',
-        r'^(\d+\.\d+)\s+(.+)',
+        re.compile(r'^第[一二三四五六七八九十百千万\d]+节\s*[：:]\s*(.+)'),
+        re.compile(r'^Section\s+(\d+)\s*[：:]\s*(.+)', re.IGNORECASE),
+        re.compile(r'^(\d+\.\d+)\s+(.+)'),
     ]
     
     @staticmethod
@@ -54,7 +54,7 @@ class ChapterService:
             # Check if line matches any chapter pattern
             is_chapter = False
             for pattern in ChapterService.CHAPTER_PATTERNS:
-                match = re.match(pattern, line, re.IGNORECASE)
+                match = pattern.match(line)
                 if match:
                     # Save previous chapter
                     if current_chapter:
@@ -75,7 +75,7 @@ class ChapterService:
             if not is_chapter:
                 # Check for section patterns (sub-chapters)
                 for pattern in ChapterService.SECTION_PATTERNS:
-                    match = re.match(pattern, line, re.IGNORECASE)
+                    match = pattern.match(line)
                     if match:
                         # This could be a subsection
                         if current_chapter:
