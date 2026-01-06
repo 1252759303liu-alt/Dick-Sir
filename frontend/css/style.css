@@ -1,0 +1,269 @@
+/* Custom Styles for Textbook Reading Assistant */
+
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Upload Area Styles */
+.upload-area {
+    border: 2px dashed #0d6efd;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    background-color: #f8f9ff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    background-color: #e7f1ff;
+    border-color: #0a58ca;
+}
+
+.upload-area.dragover {
+    background-color: #cfe2ff;
+    border-color: #0a58ca;
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 64px;
+    color: #0d6efd;
+    margin-bottom: 20px;
+}
+
+.upload-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 10px;
+}
+
+.upload-info {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Chapter Tree Styles */
+#chapterTree {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.chapter-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-left: 3px solid #0d6efd;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.chapter-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(5px);
+}
+
+.chapter-item.active {
+    background-color: #cfe2ff;
+    border-left-color: #0a58ca;
+}
+
+.chapter-title {
+    font-weight: 500;
+    color: #212529;
+}
+
+.chapter-level-2 {
+    margin-left: 15px;
+    border-left-color: #198754;
+}
+
+.chapter-level-3 {
+    margin-left: 30px;
+    border-left-color: #0dcaf0;
+}
+
+/* Content Display Styles */
+#originalContent, #summaryContent {
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 20px;
+    line-height: 1.8;
+}
+
+#originalContent {
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+#summaryText {
+    font-size: 16px;
+}
+
+#summaryText h1, #summaryText h2, #summaryText h3 {
+    color: #0d6efd;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#summaryText ul, #summaryText ol {
+    margin-left: 20px;
+}
+
+#summaryText code {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* Q&A Section Styles */
+.qa-message {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.qa-question {
+    background-color: #e7f1ff;
+    border-left: 4px solid #0d6efd;
+}
+
+.qa-answer {
+    background-color: #d1e7dd;
+    border-left: 4px solid #198754;
+}
+
+.qa-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.qa-question .qa-label {
+    color: #0d6efd;
+}
+
+.qa-answer .qa-label {
+    color: #198754;
+}
+
+/* Progress Bar Styles */
+.progress {
+    height: 25px;
+}
+
+.progress-bar {
+    font-size: 14px;
+    line-height: 25px;
+}
+
+/* Button Styles */
+.btn-group .btn {
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Card Styles */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 20px;
+    }
+    
+    .upload-icon {
+        font-size: 48px;
+    }
+    
+    .upload-text {
+        font-size: 16px;
+    }
+    
+    #originalContent, #summaryContent {
+        max-height: 400px;
+        font-size: 13px;
+    }
+    
+    #chapterTree {
+        max-height: 300px;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Toast Notification */
+.toast {
+    min-width: 250px;
+}
+
+/* File Info Badge */
+.badge {
+    font-size: 12px;
+    padding: 5px 10px;
+}
